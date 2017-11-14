@@ -2,7 +2,6 @@
 This spec has tests that validates a successfully completed oneops-azure deployment
 =end
 
-require 'spec_helper'
 require 'chef'
 require 'fog/azurerm'
 
