@@ -45,6 +45,25 @@ class AzureSpecUtils
     resource_group_name = org[0..15] + '-' + assembly[0..15] + '-' + @node['workorder']['box']['ciId'].to_s + '-' + environment[0..15] + '-' + Utils.abbreviate_location(location)
     resource_group_name
   end
+
+  def get_location
+
+
+      app_type = get_app_type
+      svc = get_service
+
+      location = case app_type
+                   when 'lb', 'fqdn'
+                     svc['location']
+                   when 'storage'
+                     svc['region']
+                   else
+                     svc['location']
+                 end
+      location
+
+  end
+
   def get_azure_creds
     cloud_name = get_cloud_name
     app_type = get_app_type
