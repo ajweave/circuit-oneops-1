@@ -1,11 +1,11 @@
 #
-# Cookbook Name:: zookeeper
+# Cookbook Name:: Jolokia_proxy
 # Recipe:: start
 #
 #
 
-service "zookeeper-server" do
-  service_name 'zookeeper-server'
+service "jolokia_proxy" do
+  service_name 'jolokia_proxy'
   supports  :restart => true, :status => true, :stop => true, :start => true
   action :start
 end
