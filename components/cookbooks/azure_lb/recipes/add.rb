@@ -1,5 +1,3 @@
-require 'ipaddr'
-
 # set the proxy if it exists as a cloud var
 Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 
@@ -181,19 +179,6 @@ def get_allow_rule_port(allow_rules)
   port
 end
 
-def ip_belongs_to_subnet(subnets, available_ip)
-  my_ip = IPAddr.new(available_ip)
-  subnets.each do |subnet|
-    #OOLog.info(subnet.properties.address_prefix)
-    check = IPAddr.new(subnet.address_prefix)
-    if(check.include?(my_ip))
-      #OOLog.info('IP belongs to subnet : '+subnet.properties.address_prefix)
-      return subnet
-    end
-  end
-  return nil
-end
-
 # ==============================================================
 # Variables
 
@@ -226,8 +211,6 @@ resource_group_name = node['platform-resource-group']
 plat_name = platform_name.gsub(/-/, '').downcase
 env_name = environment_name.gsub(/-/, '').downcase
 lb_name = "lb-#{plat_name}"
-
-metadata_not_change = node.workorder.rfcCi.ciBaseAttributes.nil? || node.workorder.rfcCi.ciBaseAttributes.empty?
 
 # ===== Create a LB =====
 #   # LB Creation Steps
@@ -264,13 +247,7 @@ if xpress_route_enabled
   OOLog.fatal("VNET '#{vnet_name}' does not have subnets") if vnet.subnets.count < 1
 
   subnets = vnet.subnets
-  if(defined?(node[:workorder][:rfcCi][:ciAttributes][:dns_record]) && node[:workorder][:rfcCi][:rfcAction] == 'update' && metadata_not_change)
-    OOLog.info("checking for same subnet")
-    subnet = ip_belongs_to_subnet(subnets, node[:workorder][:rfcCi][:ciAttributes][:dns_record])
-  else
-    OOLog.info("checking for available subnet")
-    subnet = vnet_svc.get_subnet_with_available_ips(subnets, xpress_route_enabled)
-  end
+  subnet = vnet_svc.get_subnet_with_available_ips(subnets, xpress_route_enabled)
 
 else
   # Public IP Config
@@ -314,14 +291,7 @@ lb_svc = AzureNetwork::LoadBalancer.new(creds)
 
 lb = nil
 begin
-  if(defined?(node[:workorder][:rfcCi][:ciAttributes][:dns_record]) && node[:workorder][:rfcCi][:rfcAction] == 'update' && metadata_not_change)
-    OOLog.info("checking for same LB")
-    lb = lb_svc.get(resource_group_name, lb_name)
-  else
-    OOLog.info("creating new LB")
-    lb = lb_svc.create_update(load_balancer)
-  end
-
+  lb = lb_svc.create_update(load_balancer)
   OOLog.info("Load Balancer '#{lb_name}' created!")
 rescue
 end
