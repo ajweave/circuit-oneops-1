@@ -148,7 +148,7 @@ ruby_block 'repair agent' do
     
     
     # dhclient check applicable only when disable was deselected
-    if node[:workorder][:ci][:ciAttributes][:dhclient] == 'true'
+    if node.workorder.payLoad.os[0][:ciAttributes][:dhclient] == 'true'
       Chef::Log.info("dhclient usage is in effect ... starting dhclient")
       dhclient_up_cmd = "pgrep -f '^/sbin/dhclient' || sudo /sbin/dhclient"
       dhclient_up=shell_out("#{node[:ssh_cmd]} \"#{dhclient_up_cmd}\"")
