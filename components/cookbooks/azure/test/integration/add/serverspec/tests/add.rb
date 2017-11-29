@@ -44,6 +44,7 @@ describe "vm on azure" do
       expect(vm.name).to eq(server_name)
     end
 
+
     it "has oneops org and assembly tags" do
       tags_from_work_order = Utils.get_resource_tags($node)
 
@@ -54,6 +55,19 @@ describe "vm on azure" do
       tags_from_work_order.each do |key, value|
         expect(vm.tags).to include(key => value)
       end
+    end
+  end
+
+  context "Fault and Update domain" do
+    it "Fault and Update domain returns" do
+
+      credentials = @spec_utils.get_azure_creds
+      virtual_machine_lib = AzureCompute::VirtualMachine.new(credentials)
+      resource_group_name = @spec_utils.get_resource_group_name
+      server_name = @spec_utils.get_server_name
+      vm = virtual_machine_lib.get(resource_group_name, server_name)
+      expect(vm.platform_fault_domain).not_to be_nil
+      expect(vm.platform_update_domain).not_to be_nil
     end
   end
 

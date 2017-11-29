@@ -32,7 +32,13 @@ virtual_machine_lib = AzureCompute::VirtualMachine.new(credentials)
 node.set['VM_exists'] = virtual_machine_lib.check_vm_exists?(vm_manager.resource_group_name, vm_manager.server_name)
 
 # create the vm
-vm_manager.create_or_update_vm
+vm =vm_manager.create_or_update_vm
+availability_zones = {
+
+    "fault_domain" => vm.platform_fault_domain,
+    "update_domain" => vm.platform_update_domain
+}
+puts "***RESULT:availability_zones="+JSON.dump(availability_zones)
 
 # set the ip type
 node.set['ip_type'] = vm_manager.ip_type
@@ -92,14 +98,14 @@ if node.has_key?('mgmt_url') && !node['mgmt_url'].empty?
 end
 
 metadata = {
-  "owner" => owner,
-  "mgmt_url" =>  mgmt_url,
-  "organization" => node['workorder']['payLoad']['Organization'][0]['ciName'],
-  "assembly" => node['workorder']['payLoad']['Assembly'][0]['ciName'],
-  "environment" => node['workorder']['payLoad']['Environment'][0]['ciName'],
-  "platform" => node['workorder']['box']['ciName'],
-  "component" => node['workorder']['payLoad']['RealizedAs'][0]['ciId'].to_s,
-  "instance" => node['workorder']['rfcCi']['ciId'].to_s
+    "owner" => owner,
+    "mgmt_url" => mgmt_url,
+    "organization" => node['workorder']['payLoad']['Organization'][0]['ciName'],
+    "assembly" => node['workorder']['payLoad']['Assembly'][0]['ciName'],
+    "environment" => node['workorder']['payLoad']['Environment'][0]['ciName'],
+    "platform" => node['workorder']['box']['ciName'],
+    "component" => node['workorder']['payLoad']['RealizedAs'][0]['ciId'].to_s,
+    "instance" => node['workorder']['rfcCi']['ciId'].to_s
 }
 
 puts "***RESULT:metadata=#{JSON.dump(metadata)}"

@@ -125,7 +125,8 @@ module AzureCompute
       @private_ip = @network_profile.private_ip
       # create the virtual machine
       begin
-        @virtual_machine_lib.create_update(vm_hash)
+       @virtual_machine_lib.create_update(vm_hash)
+
       rescue MsRestAzure::AzureOperationError => e
         OOLog.debug("Error Body: #{e.body}")
         OOLog.fatal('Error creating/updating VM')
