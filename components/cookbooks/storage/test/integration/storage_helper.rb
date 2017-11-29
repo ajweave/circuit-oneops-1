@@ -1,13 +1,16 @@
 #Component-specific code
 require 'chefspec'
 
-fauxhai = `gem path fauxhai`.chop
+test_platform = 'centos'
+test_version = '7.2.1511'
+fauxhai_lib = `gem which fauxhai`.chop
+fauxhai_json = File.expand_path("fauxhai/platforms/#{test_platform}/#{test_version}.json", File.dirname(fauxhai_lib))
 
 RSpec.configure do |config|
   config.cookbook_path = "#{$circuit_path}/shared/cookbooks"
-  config.path = "#{fauxhai}/lib/fauxhai/platforms/centos/7.2.1511.json"
-  config.platform = 'centos'
-  config.version = '7.2.1511'
+  config.path = fauxhai_json
+  config.platform = test_platform
+  config.version = test_version
 end
 
 chef = ChefSpec::SoloRunner.new()
