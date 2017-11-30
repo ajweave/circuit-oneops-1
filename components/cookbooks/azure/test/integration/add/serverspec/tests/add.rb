@@ -12,11 +12,14 @@ require 'fog/azurerm'
 ).each {|lib| require lib}
 require "#{COOKBOOKS_PATH}/azuresecgroup/libraries/network_security_group.rb"
 
+#load spec utils
+require "#{COOKBOOKS_PATH}/azure_base/test/integration/azure_spec_utils"
+
 RSpec.configure do |c|
   c.filter_run_excluding :express_route_enabled => !AzureSpecUtils.new($node).is_express_route_enabled
 end
 
-describe "vm on azure" do
+describe "azure node::create" do
 
   before(:each) do
     @spec_utils = AzureSpecUtils.new($node)
@@ -163,7 +166,6 @@ describe "vm on azure" do
       primary_nic_name = Hash[*(primary_nic_id.split('/'))[1..-1]]['networkInterfaces']
 
       nic_svc = AzureNetwork::NetworkInterfaceCard.new(credentials)
-      nic_svc.ci_id = $node['workorder']['rfcCi']['ciId']
       nic_svc.rg_name = @spec_utils.get_resource_group_name
       nic = nic_svc.get(primary_nic_name)
 
