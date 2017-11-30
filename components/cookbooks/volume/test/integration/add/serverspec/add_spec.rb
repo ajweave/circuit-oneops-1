@@ -6,7 +6,11 @@ require "#{$circuit_path}/circuit-oneops-1/components/cookbooks/volume/test/inte
 size = $ciAttr['size']
 fs_type = $ciAttr['fstype']
 options = $ciAttr['options']
-options_hash = Hash[options.split(',').map {|i| [i.split('=')[0].to_sym, i.split('=')[1] ? i.split('=')[1] : true]}]
+if options.respond_to?('split')
+  options_hash = Hash[options.split(',').map {|i| [i.split('=')[0].to_sym, i.split('=')[1] ? i.split('=')[1] : true]}]
+else
+  options_hash = ''
+end
 
 #Check if the $mount_point is a directory, mounted with correct filesystem and writeable
 mount_hash = {}
