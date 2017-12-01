@@ -1,12 +1,17 @@
-COOKBOOKS_PATH ||= "/opt/oneops/inductor/circuit-oneops-1/components/cookbooks"
+COOKBOOKS_PATH = "/opt/oneops/inductor/circuit-oneops-1/components/cookbooks"
 
 require 'fog/azurerm'
 require "#{COOKBOOKS_PATH}/azure_lb/libraries/load_balancer.rb"
 require "#{COOKBOOKS_PATH}/azure_base/libraries/utils.rb"
+Dir.glob("#{COOKBOOKS_PATH}/azure/libraries/*.rb").each {|lib| require lib}
+
+#load spec utils
+require "#{COOKBOOKS_PATH}/azure_base/test/integration/azure_spec_utils"
+require "#{COOKBOOKS_PATH}/azure_base/test/integration/azure_lb_spec_utils"
 
 describe 'azure lb' do
   before(:each) do
-    @spec_utils = AzureSpecUtils.new($node)
+    @spec_utils = AzureLBSpecUtils.new($node)
   end
 
   it 'should exist' do
@@ -25,6 +30,37 @@ describe 'azure lb' do
 
     tags_from_work_order.each do |key, value|
       expect(load_balancer.tags).to include(key => value)
+    end
+  end
+
+  it 'its backend address pool contains all computes from workorder' do
+    resource_group_name = @spec_utils.get_resource_group_name
+    lb_name = @spec_utils.get_lb_name
+
+    #get nics attached to load balancer.
+    lb_backend_ipconfigs = @spec_utils.get_backend_ip_configurations(resource_group_name, lb_name)
+    lb_backend_ipconfig_ids = lb_backend_ipconfigs.map {|backend_ipconfig| backend_ipconfig.id}
+
+
+    #get nics attached to computes that are listed in workorder. all these nics should be in loadbalancer's backend address pool
+    creds = @spec_utils.get_azure_creds
+    vm_svc = AzureCompute::VirtualMachine.new(creds)
+    nic_svc = AzureNetwork::NetworkInterfaceCard.new(creds)
+    nic_svc.rg_name = resource_group_name
+    nics_attchd_computes_from_wo = []
+
+    computes_from_wo = @spec_utils.get_compute_nodes_from_wo
+    computes_from_wo.each do |compute|
+      vm = vm_svc.get(resource_group_name, compute[:instance_name])
+      nic_name = nic_svc.get_nic_name(vm.network_interface_card_ids[0])
+      nic = nic_svc.get(nic_name)
+      nics_attchd_computes_from_wo.push(nic)
+    end
+
+    expect(lb_backend_ipconfig_ids.count).to eq(nics_attchd_computes_from_wo.count)
+
+    nics_attchd_computes_from_wo.each do |nic|
+      expect(lb_backend_ipconfig_ids).to include(nic.ip_configuration_id)
     end
   end
 
@@ -172,4 +208,5 @@ describe 'azure lb' do
     end
 
   end
+
 end
