@@ -85,7 +85,7 @@ resource 'compute-console',
 resource "kafka",
          :cookbook => "oneops.1.kafka",
          :design => true,
-         :requires => {"constraint" => "1..1"},
+         :requires => {"constraint" => "1..1", "services" => "mirror"},
          :monitors => {
              'kafkaprocess' => {:description => 'KafkaProcess',
                            :source => '',
