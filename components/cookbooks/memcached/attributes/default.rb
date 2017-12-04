@@ -1,10 +1,9 @@
-default["memcached"]["port"]               = 11211
+default["memcached"]["port"]               = '11211'
 default["memcached"]["ipaddress"]          = '0.0.0.0'
-default["memcached"]["log_file"]           = '/opt/meghacache/log/memcached/memcached.log'
-default["memcached"]["max_memory"]         = 512
-default["memcached"]["max_connections"]    = 1024
+default["memcached"]["log_file"]           = '/var/log/memcached.log'
+default["memcached"]["max_memory"]         = '1024'
+default["memcached"]["max_connections"]    = '1024'
 default["memcached"]["user"]               = 'memcached'
-default["memcached"]["verbose"]            = false
 default["memcached"]["log_level"]          = 'disabled'
 default["memcached"]["num_threads"]        = "4"
 default["memcached"]["enable_cas"]         = "true"

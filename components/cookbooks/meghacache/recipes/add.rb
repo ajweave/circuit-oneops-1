@@ -1,11 +1,5 @@
 include_recipe 'meghacache::performance_tuning'
 
-dir=run_context.cookbook_collection["meghacache"].root_dir
-
-Chef::Log.info dir
-require "#{dir}/libraries/validate_json_path"
-
-
 check_meghacahe_process = '/opt/nagios/libexec/check_meghacache_process.sh'
 
 execute "remove_old_file" do
@@ -29,6 +23,42 @@ template "#{check_meghacahe_process}" do
   action :create
 end
 
+[
+    '/opt/meghacache/bin',
+    '/opt/meghacache/lib',
+    '/opt/meghacache/log/graphite',
+    '/opt/meghacache/log/telegraf'
+].each do |dirname|
+    directory dirname do
+      owner "root"
+      group "root"
+      mode "0755"
+      recursive true
+    end
+end
+
+cookbook_file "/opt/meghacache/lib/graphite_writer.rb" do
+    source "graphite_writer.rb"
+    owner 'root'
+    group 'root'
+    mode '0755'
+end
+
+cookbook_file "/opt/meghacache/lib/telegraf_writer.rb" do
+    source "telegraf_writer.rb"
+    owner 'root'
+    group 'root'
+    mode '0755'
+end
+
+file '/opt/meghacache/log/telegraf/stats.log' do
+  content "# Logfile created on #{Time.now.to_s} by #{__FILE__}\n"
+  owner 'root'
+  group 'root'
+  mode '0644'
+  action :create_if_missing
+end
+
 return_status = -1
 return_status = deep_fetch(node, 'workorder', 'rfcCi', 'nsPath')
 
@@ -44,22 +74,16 @@ if return_status == 0 then
 
 end
 
-return_status1 = -1
-return_status2 = -1
-return_status3 = -1
-return_status1 = deep_fetch(node, 'workorder', 'payLoad', 'memcached.first', 'ciAttributes', 'port')
-return_status2 = deep_fetch(node, 'meghacache', 'graphite_logfiles_path')
-return_status3 = deep_fetch(node, 'workorder', 'cloud', 'ciId')
+if  deep_fetch(node, 'workorder', 'payLoad', 'memcached.first', 'ciAttributes', 'port') == 0 &&
+    deep_fetch(node, 'meghacache', 'graphite_logfiles_path') == 0 &&
+    deep_fetch(node, 'meghacache', 'graphite_servers') == 0 &&
+    deep_fetch(node, 'meghacache', 'graphite_prefix') == 0 &&
+    deep_fetch(node, 'workorder', 'cloud', 'ciId') == 0 then
 
-if return_status1 == 0 && return_status2 == 0 && return_status3 == 0 then
-
-    # graphite_servers = node.workorder.payLoad.memcached.first.ciAttributes.graphite_servers
-    # memcached_port = node.workorder.payLoad.memcached.first.ciAttributes.port
-    # graphite_logfiles_path = node.workorder.payLoad.memcached.first.ciAttributes.graphite_logfiles_path
-
-    graphite_servers = '[]'
     memcached_port = node.workorder.payLoad.memcached.first.ciAttributes.port
     graphite_logfiles_path = node.meghacache.graphite_logfiles_path
+    graphite_servers = node.meghacache.graphite_servers
+    graphite_prefix = node.meghacache.graphite_prefix
     current_cloud_id = node.workorder.cloud['ciId']
 
     template "/opt/meghacache/bin/collect_graphite_stats.rb" do
@@ -69,7 +93,7 @@ if return_status1 == 0 && return_status2 == 0 && return_status3 == 0 then
         mode "0755"
         variables({
                     :graphite_servers => graphite_servers,
-                    :graphite_prefix => '',
+                    :graphite_prefix => graphite_prefix,
                     :graphite_logfiles_path => graphite_logfiles_path,
                     :memcached_port => memcached_port,
                     :mcrouter_port => 5000,

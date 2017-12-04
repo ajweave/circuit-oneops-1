@@ -15,7 +15,6 @@ Attributes
 ==========
 
 * `port` - Memcached port number (default: 11211)
-* `log_file` - Log file directory
 * `max_memory` - Max Memory for memcached
 * `max_connections` - Max connections for memcached
 * `user` - User to run memcached

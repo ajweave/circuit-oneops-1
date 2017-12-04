@@ -12,7 +12,7 @@ class MemcacheStats
     def initialize(host = 'localhost', port_num = 11211)
         @hostname = host
         @port = port_num
-        @stats_path = "/opt/meghacache/stats"
+        @stats_path = "/opt/memcached/stats"
         @pstore_file = "memcached.pstore"
         BasicSocket.do_not_reverse_lookup = true
     end

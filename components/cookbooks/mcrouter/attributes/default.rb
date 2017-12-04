@@ -1,4 +1,4 @@
-default['mcrouter']['root_dir'] = '/opt/meghacache'
+default['mcrouter']['root_dir'] = '/opt/mcrouter'
 default['mcrouter']['src_dir'] = "#{node['mcrouter']['root_dir']}/mcrouter"
 default['mcrouter']['log_dir'] = "#{node['mcrouter']['root_dir']}/log"
 default['mcrouter']['install_dir'] = '/opt/mcrouter/install'
