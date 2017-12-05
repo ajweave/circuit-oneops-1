@@ -39,6 +39,7 @@ availability_zones = {
     "update_domain" => vm.platform_update_domain
 }
 puts "***RESULT:availability_zones="+JSON.dump(availability_zones)
+puts "***RESULT:instance_id="+ vm.id
 
 # set the ip type
 node.set['ip_type'] = vm_manager.ip_type
