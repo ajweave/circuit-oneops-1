@@ -181,6 +181,7 @@ resource "java",
          :design => true,
          :requires => {
              :constraint => "1..1",
+             :services => '*mirror',
              :help => "Java Programming Language Environment"
          },
          :attributes => {
