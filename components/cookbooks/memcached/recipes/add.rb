@@ -5,7 +5,7 @@ cli_opts=[
   "-p #{ci[:port]}",
   "-m #{ci['max_memory']}",
   "-c #{ci['max_connections']}",
-  "-l 0.0.0.0",
+  "-l #{ci['ipaddress']}",
 ]
 
 if ci.has_key?("log_level")
@@ -39,31 +39,15 @@ if ci.has_key?('additional_cli_opts')
   end
 end
 
-[
-    '/opt/meghacache/log/memcached',
-    '/opt/meghacache/bin',
-    '/opt/meghacache/lib',
-    '/opt/meghacache/log/graphite',
-    '/opt/meghacache/log/telegraf'
-].each do |dirname|
-    directory dirname do
-      owner "root"
-      group "root"
-      mode "0755"
-      recursive true
-    end
-end
-
-file '/opt/meghacache/log/telegraf/stats.log' do
-  content "# Logfile created on #{Time.now.to_s} by #{__FILE__}\n"
-  owner 'root'
-  group 'root'
-  mode '0644'
-  action :create_if_missing
-end
-
-directory '/opt/meghacache/stats' do
+directory '/opt/memcached/stats' do
     owner 'nagios'
+    group 'root'
+    mode '0755'
+    recursive true
+end
+
+directory '/opt/memcached/lib' do
+    owner 'root'
     group 'root'
     mode '0755'
     recursive true
@@ -81,28 +65,14 @@ template "memcached_service" do
     )
 end
 
-cookbook_file "/opt/meghacache/lib/memcache_stats.rb" do
+cookbook_file "/opt/memcached/lib/memcache_stats.rb" do
     source "memcache_stats.rb"
     owner 'root'
     group 'root'
     mode '0755'
 end
 
-cookbook_file "/opt/meghacache/lib/graphite_writer.rb" do
-    source "graphite_writer.rb"
-    owner 'root'
-    group 'root'
-    mode '0755'
-end
-
-cookbook_file "/opt/meghacache/lib/telegraf_writer.rb" do
-    source "telegraf_writer.rb"
-    owner 'root'
-    group 'root'
-    mode '0755'
-end
-
-template "/opt/meghacache/bin/check_memcached_stats.rb" do
+template "/opt/nagios/libexec/check_memcached_stats.rb" do
     source "check_memcached_stats.rb.erb"
     owner "root"
     group "root"
@@ -145,28 +115,6 @@ else
     provider Chef::Provider::Package::Dpkg if ci['pkg_type'] == 'deb'
     action :install
   end
-end
-
-template "memcached_config" do
-  case node["platform_family"]
-    when "rhel"
-      path "/etc/sysconfig/memcached"
-      source "memcached.sysconfig.erb"
-    when "debian"
-      path "/etc/memcached.conf"
-      source "memcached.conf.erb"
-  end
-
-  mode "0644"
-  variables(
-      :ipaddress        => ci["ipaddress"],
-      :port             => ci["port"],
-      :max_memory       => ci["max_memory"],
-      :max_connections  => ci["max_connections"],
-      :log_file         => ci["log_file"],
-      :user             => ci["user"],
-      :verbose          => ci["verbose"]
-  )
 end
 
 # Delete '/etc/init.d/memcached' from rpm install

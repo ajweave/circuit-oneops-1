@@ -5,10 +5,6 @@ maintainer       "OneOps"
 maintainer_email "support@oneops.com"
 license          "Apache License, Version 2.0"
 
-%w{ centos redhat ubuntu }.each do |os|
-  supports os
-end
-
 grouping 'default',
          :access => "global",
          :packages => ['base', 'mgmt.catalog', 'mgmt.manifest', 'catalog', 'manifest', 'bom']

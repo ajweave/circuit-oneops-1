@@ -23,3 +23,23 @@ attribute 'graphite_logfiles_path',
                 :order => 1,
                 :editable => false
             }
+
+attribute 'graphite_prefix',
+            :description => 'Graphite Prefix',
+            :default => 'Meghacache',
+            :format => {
+                :help => 'Graphite prefix for data collection objects',
+                :category => '1.Global',
+                :order => 2
+            }
+
+attribute 'graphite_servers',
+            :description => 'Graphite Servers',
+            :data_type => 'array',
+            :default => '[]',
+            :format => {
+                :help => 'Graphite servers to push metrics to. Provide server:port combinations. Example: localhost:2003',
+                :category => '1.Global',
+                :order => 3,
+                :pattern => '[\S]+:[0-9]+'
+            }

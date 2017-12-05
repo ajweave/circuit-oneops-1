@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require '/opt/meghacache/lib/memcache_stats'
+require '/opt/memcached/lib/memcache_stats'
 require '/opt/meghacache/lib/graphite_writer'
 require '/opt/meghacache/lib/telegraf_writer'
 require 'json'
@@ -12,18 +12,10 @@ oo_env = '<%= @oo_env %>'.gsub(/\./, '-')
 oo_platform = '<%= @oo_platform %>'.gsub(/\./, '-')
 oo_cloud = '<%= @oo_cloud %>'.gsub(/\./, '-')
 
-graphite_prefix = "DF.#{oo_org}-#{oo_assembly}-#{oo_platform}"
+graphite_prefix = "<%= @graphite_prefix %>.#{oo_org}-#{oo_assembly}-#{oo_platform}"
 logfiles_path = '<%= @graphite_logfiles_path %>'
 graphite_servers = JSON.parse('<%= @graphite_servers %>')
 current_cloud_id = '<%= @current_cloud_id %>'
-
-if oo_env.downcase.include?('prod')
-    graphite_servers.push('')
-    graphite_servers.push('')
-    graphite_servers.push('')
-else
-    graphite_servers.push('')
-end
 
 # The list of "raw" stats we want
 memcached_stats = ['bytes', 'bytes_read', 'bytes_written', 'curr_connections', 'curr_items', 'limit_maxbytes']
@@ -45,13 +37,21 @@ rescue MemcacheConnectionError
     stat_hash['stats']['proc_status'] = '0'
 end
 
-tw = TelegrafWriter.new('memcached', logfiles_path)
-tw.write_influx(stat_hash)
+begin
+    tw = TelegrafWriter.new('memcached', logfiles_path)
+    tw.write_influx(stat_hash)
+rescue => e
+    puts e.message
+end
 
-gw = GraphiteWriter.new(graphite_prefix, graphite_servers, oo_env, oo_cloud, logfiles_path, 'memcached_')
-gw.open_tcp_sockets
-gw.write_to_graphite(stat_hash)
-gw.close_tcp_sockets
+begin
+    gw = GraphiteWriter.new(graphite_prefix, graphite_servers, oo_env, oo_cloud, logfiles_path, 'memcached_')
+    gw.open_tcp_sockets
+    gw.write_to_graphite(stat_hash)
+    gw.close_tcp_sockets
+rescue => e
+    puts e.message
+end
 
 # The list of "raw" stats we want
 mcrouter_stats = ['num_servers', 'num_servers_up', 'num_servers_down',
@@ -78,13 +78,21 @@ end
 file = File.read('/etc/mcrouter/mcrouter.json')
 data_hash = JSON.parse(file)
 data_hash['pools'].select{ |k,v| k == ('cloud-' + current_cloud_id)}.each_pair { |cloud_key, servers_hash|
-  servers_hash.each {|key, value| stat_hash['stats']["configured_pool_size"] = value.length }
+  servers_hash.each {|key, value| stat_hash['stats']['configured_pool_size'] = value.length }
 }
 
-tw = TelegrafWriter.new('mcrouter', logfiles_path)
-tw.write_influx(stat_hash)
+begin
+    tw = TelegrafWriter.new('mcrouter', logfiles_path)
+    tw.write_influx(stat_hash)
+rescue => e
+    puts e.message
+end
 
-gw = GraphiteWriter.new(graphite_prefix, graphite_servers, oo_env, oo_cloud, logfiles_path, 'mcrouter_')
-gw.open_tcp_sockets
-gw.write_to_graphite(stat_hash)
-gw.close_tcp_sockets
+begin
+    gw = GraphiteWriter.new(graphite_prefix, graphite_servers, oo_env, oo_cloud, logfiles_path, 'mcrouter_')
+    gw.open_tcp_sockets
+    gw.write_to_graphite(stat_hash)
+    gw.close_tcp_sockets
+rescue => e
+    puts e.message
+end

@@ -3,7 +3,7 @@ require 'net/http'
 require 'socket'
 require 'logger'
 require 'uri'
-require '/opt/meghacache/lib/memcache_stats'
+require '/opt/memcached/lib/memcache_stats'
 
 class GraphiteWriter
 
