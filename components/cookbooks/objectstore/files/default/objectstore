@@ -226,30 +226,30 @@ case creds['provider']
 end
 
 case action
-  when 'list'
-    list_directories_or_files(conn, options, ARGV)
+when 'list'
+  list_directories_or_files(conn, options, ARGV)
 
-  when 'delete'
-    if ARGV.size < 2
-      puts 'Usage: objectstore delete file|bucket'
-      exit 1
-    end
-    delete_directory_or_file(conn, ARGV)
-
-  when 'upload'
-    if ARGV.size < 3
-      puts 'Usage: objectstore upload (local_dir|file) bucket [file_filter]'
-      exit 1
-    end
-    upload_directory_or_file(conn, ARGV)
-
-  when 'download'
-    if ARGV.size < 3
-      puts 'Usage: objectstore download bucket local_dir'
-      exit 1
-    end
-    download_directory_or_file(conn, options, ARGV)
-  else
-    puts "Action #{action} not supported!"
+when 'delete'
+  if ARGV.size < 2
+    puts 'Usage: objectstore delete file|bucket'
     exit 1
+  end
+  delete_directory_or_file(conn, ARGV)
+
+when 'upload'
+  if ARGV.size < 3
+    puts 'Usage: objectstore upload (local_dir|file) bucket [file_filter]'
+    exit 1
+  end
+  upload_directory_or_file(conn, ARGV)
+
+when 'download'
+  if ARGV.size < 3
+    puts 'Usage: objectstore download bucket local_dir'
+    exit 1
+  end
+  download_directory_or_file(conn, options, ARGV)
+else
+  puts "Action #{action} not supported!"
+  exit 1
 end

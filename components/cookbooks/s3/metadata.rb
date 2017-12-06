@@ -1,16 +1,15 @@
-name             "S3"
-description      "AWS S3"
-version          "0.1"
-maintainer       "OneOps"
-maintainer_email "support@oneops.com"
-license          "Apache License, Version 2.0"
+name             'S3'
+description      'AWS S3'
+version          '0.1'
+maintainer       'OneOps'
+maintainer_email 'support@oneops.com'
+license          'Apache License, Version 2.0'
 
 grouping 'default',
-  :access => 'global',
-  :packages => %w[base service.filestore mgmt.cloud.service cloud.service cloud.zone.service],
-  :namespace => true
+         :access => 'global',
+         :packages => %w[base service.filestore mgmt.cloud.service cloud.service cloud.zone.service],
+         :namespace => true
 
-  
 attribute 'key',
           :description => 'Access Key',
           :required => 'required',
@@ -20,7 +19,7 @@ attribute 'key',
             :category => '1.Credentials',
             :order => 1
           }
-  
+
 attribute 'secret',
           :description => 'Secret Key',
           :encrypted => true,
