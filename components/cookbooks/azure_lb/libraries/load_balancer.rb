@@ -207,8 +207,6 @@ module AzureNetwork
       ecvs = []
       ecvs_raw = JSON.parse(ci['ciAttributes']['ecv_map'])
       if ecvs_raw && listeners
-        OOLog.fatal('LB Listeners and ECVs are not the same length. Bad LB configuration!') unless ecvs_raw.length == listeners.count
-
         interval_secs = 15
         num_probes = 3
 
@@ -263,6 +261,8 @@ module AzureNetwork
 
       end
 
+      validate_config(listeners, ecvs)
+
       ecvs
     end
 
@@ -312,5 +312,13 @@ module AzureNetwork
       listeners
     end
 
+    def self.validate_config(listeners, ecvs)
+      http_listener_exists = listeners.any? {|l| l[:iprotocol].upcase == 'HTTP'}
+
+      if http_listener_exists
+        http_ecv_exists = ecvs.any? {|e| e[:protocol].upcase == 'HTTP'}
+        OOLog.fatal('Bad LB configuration! at least one http ecv should be present when there is a http listener') unless http_ecv_exists
+      end
+    end
   end
 end
