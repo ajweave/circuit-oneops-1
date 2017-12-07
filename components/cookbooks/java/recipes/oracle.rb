@@ -46,13 +46,13 @@ binpath = node.java.binpath.empty? ? "" : node.java.binpath
 uversion = node.java.uversion.empty? ? "" : node.java.uversion
 
 # If on fast image then set binpath to pre-loaded file
-if pkg == "jdk" && binpath.empty? && File.file?("/etc/oneops-tools-inventory.yml")
+if binpath.empty? && File.file?("/etc/oneops-tools-inventory.yml")
 
   # Load runtimes yaml on fast image and set uverstion if not already set and jdk version is available
   runtimes = YAML.load_file("/etc/oneops-tools-inventory.yml")
   if uversion.empty?
     runtimes.each do |key, value|
-      if key.include?("jdk_1.#{version}.0")
+      if key.include?("#{pkg}_1.#{version}.0")
         uversion = key.split("_").last
       end
     end
