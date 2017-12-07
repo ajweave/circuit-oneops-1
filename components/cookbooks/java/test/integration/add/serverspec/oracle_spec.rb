@@ -2,8 +2,7 @@
 # Basic verification that java was installed properly
 #
 
-
-require 'spec_helper'
+require "/home/oneops/circuit-oneops-1/components/spec_helper.rb"
 
 
 if $node['java']['flavor'] == 'oracle'
