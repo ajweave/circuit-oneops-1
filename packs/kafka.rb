@@ -81,8 +81,8 @@ resource 'compute-console',
         ]
       }'
     },
-    'os-console' => {
-      'description' => 'os-console',
+    'os' => {
+      'description' => 'os',
       'definition' => '{
          "returnObject": false,
          "returnRelation": false,
