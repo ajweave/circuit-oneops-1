@@ -27,6 +27,7 @@ module AzureCompute
       @secgroup_name = get_security_group_name(node)
       @image_id = node['image_id'].split(':')
       @size_id = node['size_id']
+      @oosize_id = node[:oosize_id]
       @ip_type = node['ip_type']
       @platform = @compute_service['ostype'].include?('windows') ? 'windows' : 'linux'
       @platform_ci_id = node['workorder']['box']['ciId']
@@ -85,7 +86,9 @@ module AzureCompute
       vm_hash[:location] = @compute_service[:location]
 
       # hardware profile values
-      vm_hash[:vm_size] = @size_id
+      vm_hash[:vm_size] = @size_id if @availability_set_response.sku_name.eql? 'Aligned'
+      vm_hash[:vm_size] = @storage_profile.get_old_azure_mapping(@oosize_id) if @availability_set_response.sku_name.eql? 'Classic'
+
 
       # storage profile values
 
