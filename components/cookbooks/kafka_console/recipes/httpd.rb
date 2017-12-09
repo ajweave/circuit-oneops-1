@@ -21,6 +21,7 @@ end
 
 # httpd service
 service "httpd" do
+  provider Chef::Provider::Service::Systemd
   action [:start, :enable]
   supports :status => true, :restart => true, :reload => true
 end

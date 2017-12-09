@@ -186,24 +186,32 @@ resource "kafka-console",
             "returnRelation": false,
             "relationName": "bom.DependsOn",
             "direction": "from",
+            "targetClassName": "bom.oneops.1.Os",
+            "relations": [
+         {"returnObject": false,
+            "returnRelation": false,
+            "relationName": "bom.DependsOn",
+            "direction": "from",
             "targetClassName": "bom.oneops.1.Compute",
             "relations": [
             {"returnObject": false,
                 "returnRelation": false,
                 "relationName": "bom.DependsOn",
                 "direction": "from",
-                "targetClassName": "bom.oneops.1Ring",
+                "targetClassName": "bom.oneops.1.Ring",
                 "relations": [
                 {"returnObject": true,
                     "returnRelation": false,
                     "relationName": "bom.DependsOn",
                     "direction": "from",
                     "targetClassName": "bom.oneops.1.Kafka"
-                }
+                 }
                 ]
-            }
+               }
+              ]
+             }
             ]
-          }
+           }
           ]
         }'
       }
@@ -406,6 +414,7 @@ resource "jolokia_proxy",
 [
   {:from => 'hostname', :to => 'os'},
   {:from => 'volume-kafka', :to => 'os'},
+  {:from => 'volume-kafka', :to => 'compute'},
   {:from => 'user-kafka', :to => 'os'},
   {:from => 'client-certs-download', :to => 'os'},
   {:from => 'java', :to => 'os'},

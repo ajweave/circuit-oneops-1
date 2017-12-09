@@ -57,7 +57,7 @@ end
 execute 'install kafka' do
   user "root"
   cwd Chef::Config[:file_cache_path]
-  command "rpm -i #{kafka_rpm}"
+  command "rpm -i #{kafka_rpm} --force"
 end
 
 kafka_manager_rpm = node['kafka_console']['console']['filename']
@@ -86,91 +86,12 @@ end
 execute 'install kafka-manager' do
   user "root"
   cwd Chef::Config[:file_cache_path]
-  command "rpm -i #{kafka_manager_rpm}"
-end
-
-# remove php-gd.x86_64
-execute "remove php-gd.x86_64" do
-  user "root"
-  exists = <<-EOF
-  rpm -qa | grep 'php-gd.x86_64'
-  EOF
-  command "rpm -e $(rpm -qa 'php-gd*')"
-  only_if exists, :user => "root"
-end
-
-# remove php-ZendFramework
-execute "remove php-ZendFramework" do
-  user "root"
-  exists = <<-EOF
-  rpm -qa | grep 'php-ZendFramework'
-  EOF
-  command "rpm -e $(rpm -qa 'php-ZendFramework*')"
-  only_if exists, :user => "root"
-end
-
-# remove libconfuse
-execute "remove libconfuse" do
-  user "root"
-  exists = <<-EOF
-  rpm -qa | grep 'libconfuse'
-  EOF
-  command "rpm -e $(rpm -qa 'libconfuse')"
-  only_if exists, :user => "root"
-end
-
-nginx_rpm = node['kafka_console']['nginx']['filename']
-nginx_download = base_url + "#{nginx_rpm}"
-
-# remove nginx, if it has been installed
-execute "remove nginx" do
-  user "root"
-  exists = <<-EOF
-  rpm -qa | grep 'nginx'
-  EOF
-  command "rpm -e $(rpm -qa 'nginx*')"
-  only_if exists, :user => "root"
-end
-
-# download nginx
-remote_file ::File.join(Chef::Config[:file_cache_path], "#{nginx_rpm}") do
-  owner "root"
-  mode "0644"
-  source nginx_download
-  action :create
+  command "rpm -i #{kafka_manager_rpm} --force"
 end
 
 # install nginx
 execute 'install nginx' do
   user "root"
   cwd Chef::Config[:file_cache_path]
-  command "rpm -i #{nginx_rpm}"
-end
-
-
-# httpd should has been installed with every OneOps VM.
-
-gweb_rpm = node['kafka_console']['gweb']['filename']
-gweb_download = base_url + "#{gweb_rpm}"
-
-remote_file ::File.join(Chef::Config[:file_cache_path], "#{gweb_rpm}") do
-  owner "root"
-  mode "0644"
-  source gweb_download
-  action :create
-end
-
-# install gweb
-execute 'install gweb' do
-  user "root"
-  cwd Chef::Config[:file_cache_path]
-  command "rpm -i #{gweb_rpm}"
-end
-
-bash "move-and-chown" do
-  user "root"
-  code <<-EOF
-  (ln -s /usr/share/ganglia/ /var/www/html/gweb)
-  (chown -R apache:apache /var/www/html/gweb/)
-  EOF
+  command "yum install nginx -y"
 end

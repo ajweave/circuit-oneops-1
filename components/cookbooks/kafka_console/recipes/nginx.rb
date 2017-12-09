@@ -133,6 +133,7 @@ end
 
 # nginx service
 service "nginx" do
+  provider Chef::Provider::Service::Systemd
   action [:start, :enable]
   supports :status => true, :restart => true, :reload => true
 end
