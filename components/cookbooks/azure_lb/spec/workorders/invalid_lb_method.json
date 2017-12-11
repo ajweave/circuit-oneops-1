@@ -5,9 +5,9 @@
   "workorder": {
     "rfcCi": {
       "ciAttributes": {
-        "listeners": "[\"http 80 tcp 5432\"]",
+        "listeners": "[\"http 80 http 8080\"]",
         "ecv_map": "{\"8080\":\"GET health_check\"}",
-        "lbmethod": "roundrobin"
+        "lbmethod": "leastconnections"
       }
     }
   },
