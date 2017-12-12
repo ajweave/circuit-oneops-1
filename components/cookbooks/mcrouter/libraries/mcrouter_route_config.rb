@@ -59,6 +59,9 @@ module McrouterRouteConfig
       raise "Unknown Data Consistency Policy: #{node['mcrouter']['policy']}"
     end
 
+    miss_limit = node['mcrouter']['miss_limit'].to_i
+    miss_limit = 999 unless miss_limit > 0
+
     return JSON.pretty_generate({
         'pools' => cloud_hash_pools,
         'route' => {
@@ -70,11 +73,11 @@ module McrouterRouteConfig
             'operation_policies'=> {
                 'get' => {
                     'type' => 'MissFailoverRoute',
-                    'children' => cloud_routes
+                    'children' => cloud_routes.take(miss_limit)
                 },
                 'gets' => {
                     'type' => 'MissFailoverRoute',
-                    'children' => cloud_routes
+                    'children' => cloud_routes.take(miss_limit)
                 }
             }
         }

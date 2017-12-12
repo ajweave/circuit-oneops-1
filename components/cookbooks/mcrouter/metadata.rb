@@ -171,6 +171,16 @@ attribute 'route',
         :order => 10,
     }
 
+attribute 'miss_limit',
+    :description => 'Cache Miss Limit',
+    :default => '2',
+    :format => {
+        :help => 'Limits the number of replicas to query in case of a cache miss. When a key is not in cache, Mcrouter will try finding the key in all replicas sequentially, each roundtrip adding up to the total response time. The recommended value is to match the number of replicas in local DC to avoid expensive roundtrips across DCs for cache misses. Zero or empty value means "unlimited".',
+        :category => '2.Advanced',
+        :order => 11,
+        :pattern => '[0-9]*'
+    }
+
 attribute 'additional_cli_opts',
     :description => "Additional CLI Options",
     :data_type => 'array',
