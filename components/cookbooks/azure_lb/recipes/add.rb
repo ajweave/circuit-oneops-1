@@ -5,7 +5,6 @@ Utils.set_proxy(node.workorder.payLoad.OO_CLOUD_VARS)
 include_recipe 'azure::get_platform_rg_and_as'
 
 # ==============================================================
-
 def create_publicip(cred_hash, location, resource_group_name)
   pip_svc = AzureNetwork::PublicIp.new(cred_hash)
   pip_svc.location = location
@@ -14,9 +13,8 @@ def create_publicip(cred_hash, location, resource_group_name)
   pip
 end
 
-def get_probes
+def get_probes(ecvs)
   probes = []
-  ecvs = AzureNetwork::LoadBalancer.get_probes_from_wo(node)
 
   ecvs.each do |ecv|
     probe = AzureNetwork::LoadBalancer.create_probe(ecv[:probe_name], ecv[:protocol], ecv[:port], ecv[:interval_secs], ecv[:num_probes], ecv[:request_path])
@@ -43,20 +41,17 @@ def get_listeners_from_wo
   listeners
 end
 
-def get_loadbalancer_rules(subscription_id, resource_group_name, lb_name, env_name, platform_name, probes, frontend_ipconfig_id, backend_address_pool_id)
+def get_loadbalancer_rules(subscription_id, resource_group_name, lb_name, env_name, platform_name, listeners, probes, frontend_ipconfig_id, backend_address_pool_id, load_distribution)
   lb_rules = []
 
   ci = {}
   ci = node.workorder.key?('rfcCi') ? node.workorder.rfcCi : node.workorder.ci
-
-  listeners = AzureNetwork::LoadBalancer.get_listeners(node)
 
   listeners.each do |listener|
     lb_rule_name = "#{env_name}.#{platform_name}-#{listener[:vport]}_#{listener[:iport]}tcp-#{ci[:ciId]}-lbrule"
     frontend_port = listener[:vport]
     backend_port = listener[:iport]
     protocol = 'Tcp'
-    load_distribution = 'Default'
 
     ### Select the right probe for the lb rule
     the_probe = AzureNetwork::LoadBalancer.get_probe_for_listener(listener, probes)
@@ -106,32 +101,12 @@ def get_dc_lb_names
   vnames
 end
 
-def get_compute_nodes_from_wo
-  compute_nodes = []
-  computes = node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/ }
-  if computes
-    # Build computes nodes to load balance
-    computes.each do |compute|
-      compute_nodes.push(
-          ciId: compute[:ciId],
-          ipaddress: compute[:ciAttributes][:private_ip],
-          hostname: compute[:ciAttributes][:hostname],
-          instance_id: compute[:ciAttributes][:instance_id],
-          instance_name: compute[:ciAttributes][:instance_name],
-          allow_port: get_allow_rule_port(compute[:ciAttributes][:allow_rules])
-      )
-    end
-  end
-
-  compute_nodes
-end
 
 # This method constructs two arrays.
 # NAT Rule array
 # Compute NAT Rule.
 # The second array is used to easily get the compute info along with its associated NAT rule
-def get_compute_nat_rules(frontend_ipconfig_id, nat_rules, compute_natrules)
-  compute_nodes = get_compute_nodes_from_wo
+def get_compute_nat_rules(compute_nodes, frontend_ipconfig_id, nat_rules, compute_natrules)
   if compute_nodes.count > 0
     port_increment = 10
     port_counter = 1
@@ -167,23 +142,15 @@ def get_compute_nat_rules(frontend_ipconfig_id, nat_rules, compute_natrules)
   nat_rules
 end
 
-def get_allow_rule_port(allow_rules)
-  port = 22 # Default port
-  unless allow_rules.nil?
-    rulesParts = allow_rules.split(' ')
-    rulesParts.each do |item|
-      port = item.gsub!(/\D/, '') if item =~ /\d/
-    end
-  end
 
-  port
-end
 
 # ==============================================================
 # Variables
 
-cloud_name = node.workorder.cloud.ciName
+work_order_utils = AzureLb::WorkOrder.new(node)
+work_order_utils.validate_config
 
+cloud_name = node.workorder.cloud.ciName
 lb_service = nil
 lb_service = node.workorder.services['lb'][cloud_name] unless node.workorder.services['lb'].nil?
 
@@ -272,15 +239,15 @@ backend_address_pools.push(backend_address_pool_name)
 backend_address_pool_ids.push(backend_address_pool_id)
 
 # ECV/Probes
-probes = get_probes
+probes = get_probes(work_order_utils.ecvs)
 
 # Listeners/LB Rules
-lb_rules = get_loadbalancer_rules(subscription_id, resource_group_name, lb_name, env_name, platform_name, probes, frontend_ipconfig_id, backend_address_pool_id)
+lb_rules = get_loadbalancer_rules(subscription_id, resource_group_name, lb_name, env_name, platform_name, work_order_utils.listeners, probes, frontend_ipconfig_id, backend_address_pool_id, work_order_utils.load_distribution)
 
 # Inbound NAT Rules
 compute_natrules = []
 nat_rules = []
-get_compute_nat_rules(frontend_ipconfig_id, nat_rules, compute_natrules)
+get_compute_nat_rules(work_order_utils.compute_nodes,frontend_ipconfig_id, nat_rules, compute_natrules)
 
 # Configure LB properties
 tags = Utils.get_resource_tags(node)
