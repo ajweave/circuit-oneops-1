@@ -17,12 +17,20 @@ include_recipe "kafka_console::nginx"
 # kafka-manager setup
 include_recipe "kafka_console::kafka-manager"
 
-# execute add_init_cluster.sh
-bash "add cluster to kafka-manager" do
+include_recipe "kafka_console::restart"
+
+bash "sleep for start" do
   user "root"
-  code <<-EOF
-    /etc/kafka-manager/add_init_cluster.sh
-  EOF
+  group "root"
+  code <<-EOH
+    sleep 30
+  EOH
+end
+
+# execute add_init_cluster.sh
+execute 'run Add_init_cluster' do
+  command "/etc/kafka-manager/add_init_cluster.sh"
+  only_if {File.exists?("/etc/kafka-manager/add_init_cluster.sh")}
 end
 
 Chef::Log.info('Installing burrow...')
