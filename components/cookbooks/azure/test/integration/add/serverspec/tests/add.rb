@@ -2,13 +2,13 @@
 This spec has tests that validates a successfully completed oneops-azure deployment
 =end
 
-COOKBOOKS_PATH ||="/opt/oneops/inductor/circuit-oneops-1/components/cookbooks"
+COOKBOOKS_PATH ||= "/opt/oneops/inductor/circuit-oneops-1/components/cookbooks"
 
 require 'chef'
 require 'fog/azurerm'
 (
-  Dir.glob("#{COOKBOOKS_PATH}/azure/libraries/*.rb") +
-  Dir.glob("#{COOKBOOKS_PATH}/azure_base/libraries/*.rb")
+Dir.glob("#{COOKBOOKS_PATH}/azure/libraries/*.rb") +
+    Dir.glob("#{COOKBOOKS_PATH}/azure_base/libraries/*.rb")
 ).each {|lib| require lib}
 require "#{COOKBOOKS_PATH}/azuresecgroup/libraries/network_security_group.rb"
 
@@ -56,8 +56,23 @@ describe "azure node::create" do
         server_name = @spec_utils.get_server_name
         vm = virtual_machine_lib.get(resource_group_name, server_name)
 
-        default_size_mapping = {"XS"=>"Standard_A0","S"=>"Standard_A1","M"=>"Standard_A2","L"=>"Standard_A3","XL"=>"Standard_A4","XXL"=>"Standard_A5","3XL"=>"Standard_A6","4XL"=>"Standard_A7","S-CPU"=>"Standard_D1","M-CPU"=>"Standard_D2","L-CPU"=>"Standard_D3","XL-CPU"=>"Standard_D4","8XL-CPU"=>"Standard_D11","9XL-CPU"=>"Standard_D12","10XL-CPU"=>"Standard_D13","11XL-CPU"=>"Standard_D14","S-MEM"=>"Standard_DS1","M-MEM"=>"Standard_DS2","L-MEM"=>"Standard_DS3","XL-MEM"=>"Standard_DS4","8XL-MEM"=>"Standard_DS11","9XL-MEM"=>"Standard_DS12","10XL-MEM"=>"Standard_DS13","11XL-MEM"=>"Standard_DS14"}
-        expect(vm.vm_size).to eq(default_size_mapping[$node[:workorder][:rfcCi][:ciAttributes][:size]])
+        availability_set = AzureBase::AvailabilitySetManager.new($node)
+        avg = availability_set.get
+
+        if avg.sku_name.eql? 'Classic'
+          storage_profile = AzureCompute::StorageProfile.new(credentials)
+          expect(vm.vm_size).to eq(storage_profile.get_old_azure_mapping($node[:workorder][:rfcCi][:ciAttributes][:size]))
+        elsif if avg.sku_name.eql? 'Aligned'
+
+                cloud_name = $node[:workorder][:cloud][:ciName]
+                cloud = $node[:workorder][:services][:compute][cloud_name][:ciAttributes]
+
+                sizemap = JSON.parse(cloud[:sizemap])
+                size_id = sizemap[$node[:workorder][:rfcCi]["ciAttributes"]["size"]]
+
+                expect(vm.vm_size).to eq(size_id)
+              end
+        end
       end
     end
 
@@ -69,7 +84,7 @@ describe "azure node::create" do
         resource_group_name = @spec_utils.get_resource_group_name
         server_name = @spec_utils.get_server_name
         vm = virtual_machine_lib.get(resource_group_name, server_name)
-        compute_instance = (vm.offer+"-"+vm.sku.to_s).downcase
+        compute_instance = (vm.offer + "-" + vm.sku.to_s).downcase
         expect(compute_instance).to eq($node[:workorder][:payLoad][:os][0][:ciAttributes]['ostype'].downcase)
       end
     end
@@ -176,7 +191,7 @@ describe "azure node::create" do
     it "has oneops org and assembly tags" do
       tags_from_work_order = Utils.get_resource_tags($node)
 
-      nic_svc = AzureNetwork::NetworkInterfaceCard.new( @spec_utils.get_azure_creds)
+      nic_svc = AzureNetwork::NetworkInterfaceCard.new(@spec_utils.get_azure_creds)
       nic_svc.ci_id = $node['workorder']['rfcCi']['ciId']
       nic_svc.rg_name = @spec_utils.get_resource_group_name
       nic_name = Utils.get_component_name('nic', nic_svc.ci_id)

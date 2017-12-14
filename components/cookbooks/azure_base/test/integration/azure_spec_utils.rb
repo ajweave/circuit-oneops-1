@@ -78,4 +78,31 @@ class AzureSpecUtils < SpecUtils
       end
     sec_rules
   end
+
+  def get_traffic_manager_profile_name
+    ns_path_parts = get_ns_path_parts
+    traffic_manager_profile_name = 'trafficmanager-' + ns_path_parts[5]
+
+    traffic_manager_profile_name
+  end
+
+  def get_remote_gdns
+    remote_gdns = @node['workorder']['payLoad']['remotegdns']
+
+    remote_gdns
+  end
+
+  def get_traffic_manager_routing_method
+    remote_gdns = get_remote_gdns
+    routing_method = remote_gdns[0]['ciAttributes']['traffic-routing-method']
+
+    routing_method
+  end
+
+  def get_traffic_manager_ttl
+    remote_gdns = get_remote_gdns
+    ttl = remote_gdns[0]['ciAttributes']['ttl']
+
+    ttl
+  end
 end

@@ -11,31 +11,27 @@ include_recipe "kafka_console::pkg_install"
 
 include_recipe "kafka_console::set_domain_name"
 
-#monitoring_system = node.workorder.rfcCi.ciAttributes.monitoring_system
-#if monitoring_system.eql? "Ganglia"
-  # gmetad setup
-#  include_recipe "kafka_console::gmetad"
-
-  # gmond setup
-#  include_recipe "kafka_console::gmond"
-
-  # httpd setup
-#  include_recipe "kafka_console::httpd"
-#end
-
 # nginx setup
 include_recipe "kafka_console::nginx"
 
 # kafka-manager setup
 include_recipe "kafka_console::kafka-manager"
 
-# execute add_init_cluster.sh
-bash "add cluster to kafka-manager" do
+include_recipe "kafka_console::restart"
+
+bash "sleep for start" do
   user "root"
-  code <<-EOF
-    /etc/kafka-manager/add_init_cluster.sh
-  EOF
+  group "root"
+  code <<-EOH
+    sleep 30
+  EOH
+end
+
+# execute add_init_cluster.sh
+execute 'run Add_init_cluster' do
+  command "/etc/kafka-manager/add_init_cluster.sh"
+  only_if {File.exists?("/etc/kafka-manager/add_init_cluster.sh")}
 end
 
 Chef::Log.info('Installing burrow...')
-include_recipe "kafka_console::burrow_install"
+# include_recipe "kafka_console::burrow_install"

@@ -4,14 +4,14 @@
        "<%= node.workorder.payLoad["Environment"][0]["ciName"] %>":{
        "zkconnect": "<%= @zookeeper_fqdn %>:9091",
        "brokers": "<%= @fqdn %>:9092",
-    	 "ganglia": {
-	    "url": "http://<%= node[:ipaddress] %>/gweb",
+#    	 "ganglia": {
+#	    "url": "http://<%= node[:ipaddress] %>/gweb",
 #	    "regex": "<%= @hostname_common_prefix %>*"
-            "regex": ".*"
-         },
+#            "regex": ".*"
+#         },
     	 "show": true,
     	},
-    },
+      },
     "metrics":{
         "cluster":[
              {"metric":"BrokerTopicMetrics.AllTopicsMessagesInPerSec.OneMinuteRate",
@@ -58,8 +58,8 @@
              "graphType":"stack",
              "glegend":"show"
              }
-	],
-	"consumer":[
+	      ],
+	   "consumer":[
             {"metric":"%Metric.Name%$",
             "hreg": ".*",
             "title": "Message Lag",
@@ -69,29 +69,29 @@
             "glegend":"show"
             }
         ]
-    },
-    "initInfo": {
-	"defaultCluster": "<%= node.workorder.payLoad["Environment"][0]["ciName"] %>"
-     }
-    "gmetricInfo": [
-        {"group":  "<%= @metric_sink_host %>",
-         "port": "<%= @metric_sink_port %>",
-         "ttl": "5",
-	}],
-    "gwebInfo":{
-        "url": "http://<%= node[:ipaddress] %>/gweb/graph.php?",
-     },
-     "jobInfo": {
-        "clusters":{
-	    "<%= node['hostname'] %>": ["<%= node.workorder.payLoad["Environment"][0]["ciName"] %>"],
-        },
-        "consumerLagJob": {
-            "delay":"0",
-            "frequency":"4",
-        },
-        "alertJob":{
-            "delay":"0",
-            "frequency":"10",
-        },
-     }
+      },
+ #   "initInfo": {
+ #	"defaultCluster": "<%= node.workorder.payLoad["Environment"][0]["ciName"] %>"
+  #    }
+  #   "gmetricInfo": [
+ #        {"group":  "<%= @metric_sink_host %>",
+  #        "port": "<%= @metric_sink_port %>",
+   #       "ttl": "5",
+ #	}],
+ #    "gwebInfo":{
+ #        "url": "http://<%= node[:ipaddress] %>/gweb/graph.php?",
+ #     },
+ #     "jobInfo": {
+ #        "clusters":{
+ #	    "<%= node['hostname'] %>": ["<%= node.workorder.payLoad["Environment"][0]["ciName"] %>"],
+ #        },
+ # #        "consumerLagJob": {
+    #         "delay":"0",
+  #           "frequency":"4",
+  #       },
+  #       "alertJob":{
+  # #           "delay":"0",
+  # #           "frequency":"10",
+   #      },
+  #    }
 }

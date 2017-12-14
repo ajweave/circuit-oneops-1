@@ -6,7 +6,8 @@
     "rfcCi": {
       "ciAttributes": {
         "listeners": "[\"http 80 https 8080\"]",
-        "ecv_map": "{\"1234\":\"GET health_check\"}"
+        "ecv_map": "{\"1234\":\"GET health_check\"}",
+        "lbmethod": "roundrobin"
       }
     }
   },

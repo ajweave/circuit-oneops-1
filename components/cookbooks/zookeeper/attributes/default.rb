@@ -19,7 +19,7 @@ default[:zookeeper][:cluster_name]           = node[:cluster_name]
 default[:zookeeper][:home_dir]               = '/usr/lib/zookeeper'
 default[:zookeeper][:conf_dir]               = '/etc/zookeeper'
 default[:zookeeper][:log_dir]                = '/var/log/zookeeper'
-default[:zookeeper][:pid_dir]                = '/var/run/zookeeper'
+default[:zookeeper][:pid_dir]                = '/usr/lib/tmpfiles.d/zookeeper'
 
 default[:zookeeper][:journal_dir]          = '/var/zookeeper/txlog'
 default[:zookeeper][:data_dir]             = '/var/zookeeper/data'

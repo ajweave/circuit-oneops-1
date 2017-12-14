@@ -130,9 +130,7 @@ template "/etc/cron.d/nginx_conf_maintenance" do
   mode  '0644'
 end
 
-
 # nginx service
-service "nginx" do
-  action [:start, :enable]
-  supports :status => true, :restart => true, :reload => true
+execute 'install nginx' do
+  command "systemctl start nginx"
 end

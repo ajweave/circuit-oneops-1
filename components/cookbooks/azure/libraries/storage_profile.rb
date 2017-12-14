@@ -45,6 +45,18 @@ module AzureCompute
       sku_name
     end
 
+    # to get the old flavor harware mapping for already existing environments
+
+    def get_old_azure_mapping(size)
+
+      old_size_map = '{"XS":"Standard_A0","S":"Standard_A1","M":"Standard_A2","L":"Standard_A3","XL":"Standard_A4","XXL":"Standard_A5","3XL":"Standard_A6","4XL":"Standard_A7","S-CPU":"Standard_D1","M-CPU":"Standard_D2","L-CPU":"Standard_D3","XL-CPU":"Standard_D4","8XL-CPU":"Standard_D11","9XL-CPU":"Standard_D12","10XL-CPU":"Standard_D13","11XL-CPU":"Standard_D14","S-MEM":"Standard_DS1","M-MEM":"Standard_DS2","L-MEM":"Standard_DS3","XL-MEM":"Standard_DS4","8XL-MEM":"Standard_DS11","9XL-MEM":"Standard_DS12","10XL-MEM":"Standard_DS13","11XL-MEM":"Standard_DS14"}'
+
+      jold_size_map = JSON.parse(old_size_map)
+
+      return(jold_size_map["#{size}"])
+
+    end
+
     def delete_managed_osdisk(resource_group_name, managed_diskname)
       # this is to delete managed OS disk
 

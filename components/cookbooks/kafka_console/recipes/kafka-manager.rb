@@ -79,16 +79,18 @@ end
 
 # kafka-manager service
 service "kafka-manager" do
+  provider Chef::Provider::Service::Systemd
   action [:start, :enable]
-  supports :status => true, :restart => true, :reload => true
+  supports :status => true, :restart => true,:stop => true, :start => true, :reload => true
 end
 
 kafka_version = payLoad["ciAttributes"]["version"]
-
+  
 # add the current Kafka cluster into kafka-manager
 template "/etc/kafka-manager/add_init_cluster.sh" do
   source "add_init_cluster.sh.erb"
-  owner  'root'
+  owner  	'root'
+  
   group  'root'
   mode   '0755'
   variables ({
@@ -96,3 +98,5 @@ template "/etc/kafka-manager/add_init_cluster.sh" do
     :kafka_version => kafka_version
   })
 end
+
+

@@ -47,64 +47,6 @@ class AzureLBSpecUtils < AzureSpecUtils
 
     lb_rules
   end
-  def get_compute_nat_rules(frontend_ipconfig_id, nat_rules, compute_natrules)
-    compute_nodes = get_compute_nodes_from_wo
-    if compute_nodes.count > 0
-      port_increment = 10
-      port_counter = 1
-      front_port = 0
-      compute_nodes.each do |compute_node|
-        idle_min = 5
-        nat_rule_name = "NatRule-#{compute_node[:ciId]}-#{compute_node[:allow_port]}tcp"
-        front_port = (compute_node[:allow_port].to_i * port_increment) + port_counter
-        frontend_port = front_port
-        backend_port = compute_node[:allow_port].to_i
-        protocol = 'Tcp'
-
-        nat_rule = AzureNetwork::LoadBalancer.create_inbound_nat_rule(nat_rule_name, protocol, frontend_ipconfig_id, frontend_port, backend_port)
-        nat_rules.push(nat_rule)
-
-        compute_natrules.push(
-            instance_id: compute_node[:instance_id],
-            instance_name: compute_node[:instance_name],
-            nat_rule: nat_rule
-        )
-        port_counter += 1
-      end
-    end
-
-    nat_rules
-  end
-  def get_compute_nodes_from_wo
-    compute_nodes = []
-    computes = @node.workorder.payLoad.DependsOn.select { |d| d[:ciClassName] =~ /Compute/ }
-    if computes
-      # Build computes nodes to load balance
-      computes.each do |compute|
-        compute_nodes.push(
-            ciId: compute[:ciId],
-            ipaddress: compute[:ciAttributes][:private_ip],
-            hostname: compute[:ciAttributes][:hostname],
-            instance_id: compute[:ciAttributes][:instance_id],
-            instance_name: compute[:ciAttributes][:instance_name],
-            allow_port: get_allow_rule_port(compute[:ciAttributes][:allow_rules])
-        )
-      end
-    end
-
-    compute_nodes
-  end
-  def get_allow_rule_port(allow_rules)
-    port = 22 # Default port
-    unless allow_rules.nil?
-      rulesParts = allow_rules.split(' ')
-      rulesParts.each do |item|
-        port = item.gsub!(/\D/, '') if item =~ /\d/
-      end
-    end
-
-    port
-  end
 
   # Returns backend ip configurations of a load balancer
   # == Parameters:

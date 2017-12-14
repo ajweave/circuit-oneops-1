@@ -1,4 +1,5 @@
 service "zookeeper" do
+  provider Chef::Provider::Service::Systemd
   service_name 'zookeeper'
   supports  :restart => true, :status => true, :stop => true, :start => true
   action :start
@@ -6,6 +7,7 @@ service "zookeeper" do
 end
 
 service "kafka" do
+  provider Chef::Provider::Service::Systemd
   service_name 'kafka'
   supports  :restart => true, :status => true, :stop => true, :start => true
   action :start

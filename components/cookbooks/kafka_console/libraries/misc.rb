@@ -28,7 +28,13 @@ def get_full_hostname(fqdn)
         full_hostname = `host #{ip} | awk '{ print $NF }' | sed 's/.$//'`.strip
       else
         Chef::Log.info("3.ZKIPHOSTMAPCACHE get_full_hostname use_ptr is true and hostname is determined by DNS Resolve ip to be " + full_hostname)
-        addToMap(ZKIPHOSTMAPCACHE, full_hostname)
+         full_hostname.gsub!(/\s+/, ' ')
+         full_hostname.gsub!(/\n/, " ")
+         if full_hostname.match(" ")
+           values = full_hostname.split(" ")
+           full_hostname = values[0]
+         end
+         addToMap(ZKIPHOSTMAPCACHE, full_hostname)
         break;
       end
 
