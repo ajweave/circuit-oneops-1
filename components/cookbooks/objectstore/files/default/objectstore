@@ -156,7 +156,7 @@ def download_directory_or_file(conn, options, argv)
           start_time = Time.now
           # Download files in chunks
           directory.files.get(remote_file.key) do |chunk, remaining_bytes, total_bytes|
-            puts "remaining_bytes: #{remaining_bytes}, total_bytes: #{total_bytes}"
+            puts "\rDownloaded: #{total_bytes - remaining_bytes} of #{total_bytes}"
             local_file.write(chunk)
           end
           finish_time = Time.now
