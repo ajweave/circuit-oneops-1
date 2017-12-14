@@ -5,13 +5,13 @@ cloud_name = $node['workorder']['cloud']['ciName']
 
 priority = $node['workorder']['cloud']['ciAttributes']['priority']
 
-metadata = $node['workorder']['payLoad']['RequiresComputes'][0]['ciBaseAttributes']['metadata']
+metadata = $node['workorder']['payLoad']['RequiresComputes'][0]['ciBaseAttributes']['metadata'].nil? ?  $node['workorder']['payLoad']['RequiresComputes'][0]['ciAttributes']['metadata'] :  $node['workorder']['payLoad']['RequiresComputes'][0]['ciBaseAttributes']['metadata']
 metadata_obj= JSON.parse(metadata)
 org = metadata_obj['organization']
 assembly = metadata_obj['assembly']
 platform = metadata_obj['platform']
 env = metadata_obj['environment']
-domain = $node['workorder']['payLoad']['remotedns'][0]['ciAttributes']['zone']
+domain = defined?($node['workorder']['payLoad']['remotedns'][0]['ciAttributes']['zone']) ? $node['workorder']['payLoad']['remotedns'][0]['ciAttributes']['zone'] :  $node['workorder']['services']['dns'][cloud_name]['ciAttributes']['zone']
 
 is_azure = cloud_name =~ /azure/ ? true : false
 
