@@ -59,3 +59,5 @@ attribute 'storage_account_name',
             :category => '2.Authentication',
             :order => 5
           }
+
+recipe 'azure_subscription_status', 'Check Azure Subscription Status'
