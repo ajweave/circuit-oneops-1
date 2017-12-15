@@ -15,14 +15,14 @@ if $node['java']['flavor'] == 'oracle'
   end
 
   # version
-  if $node['java']['uversion'].empty?
+  if !$node['java']['uversion'].nil? && !$node['java']['uversion'].empty?
     describe command('java -version') do
-      its(:stderr) { should match /#{javaVersion}/ }
+      its(:stderr) { should match /#{javaUVersion}/ }
       its(:exit_status) { should eq 0 }
     end
   else
     describe command('java -version') do
-      its(:stderr) { should match /#{javaUVersion}/ }
+      its(:stderr) { should match /#{javaVersion}/ }
       its(:exit_status) { should eq 0 }
     end
   end
