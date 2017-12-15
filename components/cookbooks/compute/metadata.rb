@@ -104,13 +104,13 @@ attribute 'tags',
     :order => 9
   }
 
-attribute 'availability_zones',
+attribute 'zone',
           :description => "Fault and Update Domains",
           :grouping => 'bom',
           :data_type => "hash",
           :default => "{}",
           :format => {
-              :help => 'Availability_Zones',
+              :help => 'Zone',
               :category => '1.Identity',
               :order => 10
           }

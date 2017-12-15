@@ -32,14 +32,14 @@ virtual_machine_lib = AzureCompute::VirtualMachine.new(credentials)
 node.set['VM_exists'] = virtual_machine_lib.check_vm_exists?(vm_manager.resource_group_name, vm_manager.server_name)
 
 # create the vm
-vm =vm_manager.create_or_update_vm
-availability_zones = {
+vm = vm_manager.create_or_update_vm
+zone = {
 
     "fault_domain" => vm.platform_fault_domain,
     "update_domain" => vm.platform_update_domain
 }
-puts "***RESULT:availability_zones="+JSON.dump(availability_zones)
-puts "***RESULT:instance_id="+ vm.id
+puts "***RESULT:zone=" + JSON.dump(zone)
+puts "***RESULT:instance_id=" + vm.id
 
 # set the ip type
 node.set['ip_type'] = vm_manager.ip_type

@@ -53,7 +53,7 @@ resource "java",
              	:jrejdk => "jdk",
              	:version => "8",
              	:sysdefault => "true",
-             	:flavor => "openjdk"
+             	:flavor => "oracle"
          }
 
 resource "artifact-app",
@@ -119,8 +119,7 @@ resource "lb",
 :except => [ 'single' ],
 :design => false,
 :attributes => {
-    "listeners"     => '["tcp 3306 tcp 3307"]',
-    "ecv_map"       => '{"3307":"port-check"}'
+    "listeners"     => '["tcp 3306 tcp 3307"]'
   }
 
 # we use this to have the hostnames stay the same after a compute REPLACE:

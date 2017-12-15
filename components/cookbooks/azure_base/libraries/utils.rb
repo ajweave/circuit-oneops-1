@@ -152,7 +152,6 @@ module Utils
                   :get_component_name,
                   :get_dns_domain_label,
                   :abbreviate_location,
-                  :is_prm,
                   :get_fault_domains,
                   :get_update_domains,
                   :get_resource_tags
