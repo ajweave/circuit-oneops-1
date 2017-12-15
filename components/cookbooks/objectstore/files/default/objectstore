@@ -199,11 +199,12 @@ end.parse!
 
 action = ARGV[0]
 if action.nil?
-  puts 'Usage: '
-  puts 'objectstore list [bucket]'
-  puts 'objectstore upload local_dir|file bucket'
-  puts 'objectstore download bucket|file local_dir'
-  puts 'objectstore delete file|bucket'
+  usage
+  puts 'usage: '
+  puts 'objectstore list <container>'
+  puts 'objectstore upload <local upload dir|file> <container>'
+  puts 'objectstore download <container/blob> <local download path>'
+  puts 'objectstore delete <container>|<blob>'
   exit 1
 end
 
@@ -212,17 +213,17 @@ creds = JSON.parse(File.read('/etc/objectstore_creds.json'))
 conn = nil
 
 case creds['provider']
-  when /OpenStack/
-    require 'fog'
-    puts "Connecting to #{creds['endpoint']} as #{creds['username']}..."
-    conn = Fog::Storage.new(creds)
-  when /Azure/
-    require 'fog/azurerm'
-    puts "Connecting to #{creds['azure_storage_account_name']}..."
-    conn = Fog::Storage::AzureRM.new(creds)
-  else
-    puts "Provider #{creds['provider']} not supported!"
-    exit 1
+when /OpenStack/
+  require 'fog'
+  puts "Connecting to #{creds['endpoint']} as #{creds['username']}..."
+  conn = Fog::Storage.new(creds)
+when /Azure/
+  require 'fog/azurerm'
+  puts "Connecting to #{creds['azure_storage_account_name']}..."
+  conn = Fog::Storage::AzureRM.new(creds)
+else
+  puts "Provider #{creds['provider']} not supported!"
+  exit 1
 end
 
 case action
@@ -231,21 +232,21 @@ when 'list'
 
 when 'delete'
   if ARGV.size < 2
-    puts 'Usage: objectstore delete file|bucket'
+    puts 'Usage: objectstore delete <container>|<blob>'
     exit 1
   end
   delete_directory_or_file(conn, ARGV)
 
 when 'upload'
   if ARGV.size < 3
-    puts 'Usage: objectstore upload (local_dir|file) bucket [file_filter]'
+    puts 'Usage: objectstore upload (local_dir|file) <container> [file_filter]'
     exit 1
   end
   upload_directory_or_file(conn, ARGV)
 
 when 'download'
   if ARGV.size < 3
-    puts 'Usage: objectstore download bucket local_dir'
+    puts 'Usage: objectstore download <container> local_dir'
     exit 1
   end
   download_directory_or_file(conn, options, ARGV)
