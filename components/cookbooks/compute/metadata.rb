@@ -108,7 +108,6 @@ attribute 'zone',
           :description => "Fault and Update Domains",
           :grouping => 'bom',
           :data_type => "hash",
-          :default => "{}",
           :format => {
               :help => 'Zone',
               :category => '1.Identity',
