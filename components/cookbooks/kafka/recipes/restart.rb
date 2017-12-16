@@ -10,7 +10,7 @@ service "kafka" do
   provider Chef::Provider::Service::Systemd
   service_name 'kafka'
   supports  :stop => true, :status => true, :stop => true, :start => true
-  action :restart
+  action :stop
 end
 
 sleep 30
@@ -19,7 +19,7 @@ service "kafka" do
   provider Chef::Provider::Service::Systemd
   service_name 'kafka'
   supports  :start => true, :status => true, :stop => true, :start => true
-  action :restart
+  action :start
 end
 
 ruby_block "kafka_running" do

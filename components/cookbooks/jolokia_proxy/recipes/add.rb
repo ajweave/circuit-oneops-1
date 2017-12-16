@@ -18,17 +18,20 @@ if mirrors.nil? || !mirrors.has_key?('jetty')
 end
 
 node.override[:jolokia_proxy][:mirror]=mirrors['jetty']
-node.override[:jolokia_proxy][:jolokia_war_mirror]=mirrors['jolokia-miiror']
-node.override[:jolokia_proxy][:jolokia_log4j_location]=mirrors['jalokia-log4j']
-node.override[:jolokia_proxy][:jolokia_slf4j_location]=mirrors['jalokia-slf4j']
-node.override[:jolokia_proxy][:jolokia_slf4j_api_location]=mirrors['jalokia-slf4j-api']
+node.override[:jolokia_proxy][:jolokia_war_mirror]=mirrors['jolokia-mirror']
+
+node.override[:jolokia_proxy][:jolokia_log4j_location]=mirrors['jolokia-log4j']
+node.override[:jolokia_proxy][:jolokia_slf4j_location]=mirrors['jolokia-slf4j']
+node.override[:jolokia_proxy][:jolokia_slf4j_api_location]=mirrors['jolokia-slf4j-api']
+
+node.override[:jolokia_proxy][:jetty_download_location]="#{node[:jolokia_proxy][:mirror]}/#{node[:jolokia_proxy][:version]}/#{node[:jolokia_proxy][:tgz_file]}"
 
 jetty_download_location="#{node[:jolokia_proxy][:jetty_download_location]}"
 jetty_untar_dir_name = "#{node[:jolokia_proxy][:untar_dir]}"
 tgz_file="#{node[:jolokia_proxy][:tgz_file]}"
 
 #jolokia war location
-jolokia_war_location="#{node.jolokia_proxy[:jolokia_war_location]}"
+jolokia_war_location="#{node[:jolokia_proxy][:jolokia_war_mirror]}/#{node[:jolokia_proxy][:jolokia_war_version]}/#{node[:jolokia_proxy][:jolokia_war_file]}"
 
 #read vauables from meta.rb
 

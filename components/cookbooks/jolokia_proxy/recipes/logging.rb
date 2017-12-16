@@ -8,19 +8,19 @@ end
 
 remote_file "#{node[:jolokia_proxy][:lib_dir]}/ext/log4j-1.2.17.jar" do
   owner node.jolokia_proxy[:user] and group node.jolokia_proxy[:group] and mode 0644
-  source node.jolokia_proxy[:jalokia_log4j_location]
+  source node.jolokia_proxy[:jolokia_log4j_location]
   action :create
 end
 
 remote_file "#{node[:jolokia_proxy][:lib_dir]}/ext/slf4j-api-1.7.21.jar" do
   owner node.jolokia_proxy[:user] and group node.jolokia_proxy[:group] and mode 0644
-  source node.jolokia_proxy[:jalokia_slf4j_api_location]
+  source node.jolokia_proxy[:jolokia_slf4j_api_location]
   action :create
 end
 
 remote_file "#{node[:jolokia_proxy][:lib_dir]}/ext/slf4j-log4j12-1.7.21.jar" do
   owner node.jolokia_proxy[:user] and group node.jolokia_proxy[:group] and mode 0644
-  source node.jolokia_proxy[:jalokia_slf4j_location]
+  source node.jolokia_proxy[:jolokia_slf4j_location]
   action :create
 end
 
