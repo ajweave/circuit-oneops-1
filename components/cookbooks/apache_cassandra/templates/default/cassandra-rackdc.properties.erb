@@ -17,20 +17,26 @@
 # These properties are used with GossipingPropertyFileSnitch and will
 # indicate the rack and dc for this node
 <% 
-      cloud_map = {}  
-      node.workorder.payLoad.clouds.each do |c|
-        key = c['ciId'].to_s
-        cloud_map[key] = c
-      end
-      dc_rack_map = JSON.parse(node.workorder.rfcCi.ciAttributes.cloud_dc_rack_map)
-      compute = node.workorder.payLoad.DependsOn.select{ |d| d[:ciClassName] =~ /Compute/ }.first
-      
-      ci_name_parts = compute['ciName'].split("-")
-      cloud_ci_id = ci_name_parts[-2] 
-      cloud_name = cloud_map[cloud_ci_id]['ciName']
+      dc_rack_map = node[:dc_rack_map]
+      cloud_name = node.workorder.cloud.ciName
       dc_rack = dc_rack_map[cloud_name].split(":")
       dc = dc_rack.first
-      rack = dc_rack.last
+      
+      #Azure rack is the fault domain
+      if Cassandra::Util.isAzure()
+        meta = Cassandra::Util.fetch_azure_metadata
+        if meta['compute'] == nil || meta['compute']['platformFaultDomain'] == nil
+          Chef::Log.warn("Azure metadta is #{meta}")
+          Chef::Log.error("There was a problem calling the Azure metadata service, no key for compute.platformFaultDomain found, can't configure rack.")
+          puts "***FAULT:FATAL=There was a problem calling the Azure metadata service, no key for compute.platformFaultDomain found, can't configure rack."
+          e = Exception.new("no backtrace")
+          e.set_backtrace("")
+          raise e
+        end
+        rack = meta['compute']['platformFaultDomain']
+      else
+        rack = dc_rack.last
+      end
 %>
 
 dc=<%= dc %>
