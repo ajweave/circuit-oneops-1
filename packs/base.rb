@@ -1097,7 +1097,7 @@ procedure "gslb-migration",
      :arguments => {
         "migrate" => {
                 "name" => "migrate",
-                "defaultValue" => "true",
+                "defaultValue" => "torbit",
                 "dataType" => "string"
         }
    },
@@ -1111,7 +1111,7 @@ procedure "gslb-migration",
             "flow": [
                 {
                     "relationName": "base.RealizedAs",
-                    "execStrategy": "one-for-all",
+                    "execStrategy": "one-by-one",
                     "direction": "from",
                     "targetClassName": "bom.oneops.1.Fqdn",
                     "actions": [

@@ -140,6 +140,16 @@ attribute 'gslb_map',
               :order => 4
           }
 
+attribute 'legacy_gslb',
+          :description => "Legacy GSLB entry",
+          :grouping => 'bom',
+          :default => '',
+          :format => {
+              :help => 'Legacy GSLB entry',
+              :category => '2.GSLB Config',
+              :order => 5
+          }
+
 recipe "repair", "Repair"
 recipe "gslbstatus", "GSLB Status"
 recipe "migrate", "Migrate GSLB to Torbit"
