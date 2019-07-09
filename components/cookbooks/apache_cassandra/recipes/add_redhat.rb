@@ -52,19 +52,21 @@ cloud_name = node[:workorder][:cloud][:ciName]
 node.default[:cloud_name] = cloud_name
 Chef::Log.info("Using cloud: #{cloud_name}")
 cloud_services = services[:maven][cloud_name]
+repo_paths = %w[pangaea_snapshots, pangaea_releases, central]
 cassandra_download_url = cloud_services[:ciAttributes][:url] + "content/repositories/central/org/apache/cassandra/#{sub_dir}/#{tgz_file}"
 dest_file = "#{tmp}/#{tgz_file}"
 
-if actionName == 'upgrade'
-  `curl -o #{dest_file} #{cassandra_download_url}`
-else
-  unless File.exists?(dest_file)
-    shared_download_http cassandra_download_url do
-      path dest_file
-      action :create
-      if node[:apache_cassandra][:checksum] && !node[:apache_cassandra][:checksum].empty?
-        checksum node[:apache_cassandra][:checksum]
-      end
+unless File.exists?(dest_file)
+  for repo_path in repo_paths do
+    cassandra_download_url = cloud_services[:ciAttributes][:url] + "content/repositories/#{repo_path}/org/apache/cassandra/#{sub_dir}/#{tgz_file}"
+    `curl -o #{dest_file} #{cassandra_download_url}`
+    rc = $?.exitstatus
+    if rc != 0
+      Chef::Log.info("curl returned #{rc} for #{cassandra_download_url}")
+    end
+    if File.exists?(dest_file)
+      Chef::Log.info("Binaries downloaded from #{repo_path}")
+      break
     end
   end
 end

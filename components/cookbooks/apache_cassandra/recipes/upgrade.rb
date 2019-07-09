@@ -28,42 +28,17 @@ Chef::Log.info("Node version : #{node_version}")
 current_version = node.workorder.ci.ciAttributes.node_version
 new_version = node.workorder.ci.ciAttributes.version
 
-# Check whether versions are correct
-if ((Gem::Version.correct?(current_version)) && Gem::Version.correct?(new_version))
-	Chef::Log.info("Upgrading from #{current_version} to #{new_version}")
-else
-	Chef::Log.fatal("Wrong versions: upgrading from #{current_version} to #{new_version}")
-	raise
-end
+Chef::Log.info("Upgrading from #{current_version} to #{new_version}")
+
 
 version_upgrade_check = Gem::Version.new(current_version) <=> Gem::Version.new(new_version)
 
 puts "version_upgrade_check = #{version_upgrade_check}"
 
-if version_upgrade_check == 1
-    message = "Version down grade is not supported."
-	puts "***FAULT:FATAL=" + message
-	puts "*************** #{message} ***********"
-    e = Exception.new("no backtrace")
-    e.set_backtrace("")
-    raise e
-elsif version_upgrade_check == 0
+if current_version != new_version
 	puts "******* No version change hence skipping upgrade *****"
 	Chef::Log.error("No version change hence skipping upgrade")
 	return
-end
-
-major_version_upgrade_check = Gem::Version.new(new_version) <=> Gem::Version.new(current_version).bump
-puts "major_version_upgrade_check = #{major_version_upgrade_check}"
-
-#Pre upgrade - Running upgradesstables.
-
-if (major_version_upgrade_check == 0 || major_version_upgrade_check == 1)
-	puts "Major Version upgrade detected. Running upgradesstables prior to upgrade to make sure all sstables are matched with #{current_version}"
-	cmd = `sudo /app/cassandra/current/bin/nodetool upgradesstables`
-	puts "Updatesstable : #{cmd}"
-else
-	puts "Minor Version upgrade detected, Skipping pre-upgradesstables."
 end
 
 cmd = `sudo /opt/cassandra/bin/nodetool drain`
